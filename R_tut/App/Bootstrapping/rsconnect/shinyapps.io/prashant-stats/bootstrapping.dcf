@@ -1,0 +1,10 @@
+name: bootstrapping
+title:
+username:
+account: prashant-stats
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 3572990
+bundleId: 4175097
+url: https://prashant-stats.shinyapps.io/bootstrapping/
+when: 1612346465.55649

@@ -1,0 +1,27 @@
+---
+title: "Map"
+author: "Prashant Sharma"
+date: "29/01/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Lets create a map of TajMahal, India in leaflet.
+
+```{r}
+library(leaflet)
+
+```
+Our co-ordinates of Taj,India.
+```{r}
+
+df = data.frame(lat = 27.1751, lng = 78.0421)
+df
+```
+```{r}
+df%>%leaflet()%>%addTiles(options = providerTileOptions(minZoom = 1,maxZoom = 50))%>%addMarkers(popup = "Taj Mahal ")
+```
+

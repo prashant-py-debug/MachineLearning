@@ -1,0 +1,89 @@
+---
+title: "Predicition Assignment"
+author: "Prashant Sharma"
+date: "24/01/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+Loading training and test csv data files.
+```{r}
+training = read.csv("pml-training.csv",na.strings = c("", "NA"))
+testing = read.csv("pml-testing.csv",na.strings = c("", "NA"))
+dim(training)
+dim(testing)
+```
+
+lets clean our dataset for NA entries.
+```{r}
+training <- training[ , colSums(is.na(training)) == 0]
+training_set <- training[,-c(1:8)] #dropping irrelevant features
+testing_set <- testing[,names(training_set[,-52])]
+dim(training_set)
+dim(testing_set)
+```
+Our task here is to classify or predict whether the dumb-bell curl done by the user is correct or not and what type of error he is doing that is in which class his exercise form belongs.
+
+lets import few packages for our classification task.
+```{r}
+library(caret)
+library(randomForest)
+library(parallel)
+library(doParallel)
+```
+
+```{r}
+cluster <- makeCluster(detectCores() - 4)
+registerDoParallel(cluster)
+```
+
+Before proceeding further lets create a validation set
+```{r}
+set.seed(1234)
+intrain <- createDataPartition(training_set$classe , p = 0.75)[[1]]
+new_training_set <- training_set[intrain,]
+
+
+validation_set <- training_set[-intrain,]
+dim(new_training_set)
+dim(validation_set)
+
+```
+
+
+lets try Random forest. we will be applying cross validation method at 5 folds.
+
+```{r}
+fit_control<-trainControl(method = "cv" ,number = 5,allowParallel=TRUE)
+
+model1 <- train(classe ~ . , method = "rf" ,trControl = fit_control, data = new_training_set, verbose = F )
+```
+```{r}
+model1
+```
+Stopping the cluster.
+```{r}
+stopCluster(cluster)
+registerDoSEQ()
+```
+
+Confusion Matrix
+```{r}
+prediction1 <- predict(model1 , newdata = validation_set)
+confusionMatrix(prediction1 , as.factor(validation_set$classe))
+
+```
+Overall accuracy
+```{r}
+confusionMatrix(prediction1, as.factor(validation_set$classe))$overall[[1]]
+```
+Lets predict on our test set:
+```{r}
+prediction_test<- predict(model1 , newdata = testing)
+prediction_test
+```
+
+
+
